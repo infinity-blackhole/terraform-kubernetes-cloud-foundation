@@ -32,11 +32,11 @@ resource "kubernetes_manifest" "oathkeeper_deployment" {
               ports = [
                 {
                   name          = "proxy"
-                  containerPort = var.config.serve.proxy.port
+                  containerPort = try(var.config.serve.proxy.port, 4455)
                 },
                 {
                   name          = "api"
-                  containerPort = var.config.serve.api.port
+                  containerPort = try(var.config.serve.api.port, 4456)
                 }
               ]
               volumeMounts = [
