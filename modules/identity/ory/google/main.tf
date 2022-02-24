@@ -1,75 +1,50 @@
-resource "google_cloud_run_service" "oathkeeper" {
+module "oathkeeper_serverless_service" {
+  source = "../../../service/google"
   for_each = {
     proxy = {
-      containerPort = try(var.config.serve.proxy.port, 4455)
+      port = try(var.config.serve.proxy.port, 4455)
     },
     api = {
-      containerPort = try(var.config.serve.api.port, 4456)
+      port = try(var.config.serve.api.port, 4456)
     }
   }
-
-  name                       = "${var.name}-proxy"
-  location                   = var.location
-  autogenerate_revision_name = true
-
-  template {
-    metadata {
-      annotations = merge(
-        {
-          "run.googleapis.com/sandbox"       = "gvisor",
-          "client.knative.dev/user-image"    = var.image,
-          "autoscaling.knative.dev/minScale" = var.min_scale,
-          "autoscaling.knative.dev/maxScale" = var.max_scale,
-          "run.googleapis.com/secrets"       = google_secret_manager_secret.oathkeeper_config.name
-        },
-        var.annotations
-      )
-      labels    = var.labels
-      namespace = var.namespace
-    }
-    spec {
-      containers {
-        image = var.image
-        args = [
-          "--config",
-          "/secrets/config.yaml",
-          "serve"
-        ]
-        ports = [
+  region      = var.region
+  name        = "${var.name}-${each.key}"
+  namespace   = var.namespace
+  labels      = var.labels
+  annotations = var.annotations
+  image       = var.image
+  args = [
+    "--config",
+    "/etc/ory/oathkeeper/config.yaml",
+    "serve"
+  ]
+  cpu    = "500m"
+  memory = "512Mi"
+  port   = each.value.port
+  volume_mounts = [
+    {
+      mountPath = "/etc/ory/oathkeeper"
+      name      = "config"
+    },
+  ]
+  volumes = [
+    {
+      name = "config"
+      gcpSecret = {
+        name        = google_secret_manager_secret.oathkeeper_config.id
+        defaultMode = 292 # 0444
+        items = [
           {
-            name          = "proxy"
-            containerPort = try(var.config.serve.proxy.port, 4455)
-          }
-        ]
-        resources = var.resources
-        volume_mounts {
-          name       = "config"
-          mount_path = "/secrets"
-        }
-      }
-      volumes {
-        name = "config"
-        secret {
-          secret_name  = google_secret_manager_secret.oathkeeper_config.id
-          default_mode = 292 # 0444
-          items {
             key  = "1"
             path = "config.yaml"
             mode = 256 # 0400
           }
-        }
+        ]
       }
     }
-  }
-
-  lifecycle {
-    ignore_changes = [
-      template[0].metadata[0].annotations["client.knative.dev/user-image"],
-      template[0].spec[0].containers[0].image
-    ]
-  }
+  ]
 }
-
 
 resource "google_secret_manager_secret" "oathkeeper_config" {
   secret_id = var.name
@@ -77,7 +52,7 @@ resource "google_secret_manager_secret" "oathkeeper_config" {
   replication {
     user_managed {
       replicas {
-        location = var.location
+        location = var.region
       }
     }
   }

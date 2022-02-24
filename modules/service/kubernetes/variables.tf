@@ -1,11 +1,20 @@
 variable "name" {
-  type    = string
-  default = "oathkeeper"
+  type = string
 }
 
 variable "namespace" {
   type    = string
   default = "default"
+}
+
+variable "args" {
+  type    = list(string)
+  default = null
+}
+
+variable "command" {
+  type    = list(string)
+  default = null
 }
 
 variable "concurrency" {
@@ -65,19 +74,27 @@ variable "annotations" {
 
 variable "image" {
   type    = string
-  default = "oryd/oathkeeper"
+  default = null
 }
 
-variable "config" {
-  type = any
-  default = {
-    serve = {
-      proxy = {
-        port = 4456
-      },
-      api = {
-        port = 4455
-      }
-    }
-  }
+variable "volumes" {
+  type    = list(any)
+  default = null
+}
+
+variable "volume_mounts" {
+  type    = list(any)
+  default = null
+}
+
+# Platform specific variables
+
+variable "target" {
+  type    = string
+  default = null
+}
+
+variable "metric" {
+  type    = string
+  default = null
 }

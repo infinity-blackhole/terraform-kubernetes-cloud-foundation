@@ -1,11 +1,20 @@
 variable "name" {
-  type    = string
-  default = "oathkeeper"
+  type = string
 }
 
 variable "namespace" {
   type    = string
   default = "default"
+}
+
+variable "args" {
+  type    = list(string)
+  default = null
+}
+
+variable "command" {
+  type    = list(string)
+  default = null
 }
 
 variable "concurrency" {
@@ -49,7 +58,7 @@ variable "timeout" {
 }
 
 variable "env" {
-  type    = map(string)
+  type    = list(string)
   default = null
 }
 
@@ -65,19 +74,31 @@ variable "annotations" {
 
 variable "image" {
   type    = string
-  default = "oryd/oathkeeper"
+  default = null
 }
 
-variable "config" {
-  type = any
-  default = {
-    serve = {
-      proxy = {
-        port = 4456
-      },
-      api = {
-        port = 4455
-      }
-    }
-  }
+variable "volumes" {
+  type    = list(any)
+  default = null
+}
+
+variable "volume_mounts" {
+  type    = list(any)
+  default = null
+}
+
+# Platform specific variables
+
+variable "region" {
+  type = string
+}
+
+variable "protocol_version" {
+  type    = string
+  default = "h2c"
+}
+
+variable "sandbox" {
+  type    = string
+  default = "gvisor"
 }

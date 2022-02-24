@@ -3,25 +3,59 @@ variable "name" {
   default = "oathkeeper"
 }
 
-variable "location" {
-  type = string
-}
-
 variable "namespace" {
   type    = string
   default = "default"
 }
 
-variable "target" {
+variable "concurrency" {
+  type    = number
+  default = null
+}
+
+variable "cpu" {
   type    = string
   default = null
 }
 
+variable "max_instances" {
+  type    = number
+  default = null
+}
+
+variable "memory" {
+  type    = string
+  default = null
+}
+
+variable "min_instances" {
+  type    = number
+  default = null
+}
+
+variable "port" {
+  type    = number
+  default = null
+}
+
+variable "service_account_name" {
+  type    = string
+  default = null
+}
+
+variable "timeout" {
+  type    = number
+  default = null
+}
+
+variable "env" {
+  type    = map(string)
+  default = null
+}
+
 variable "labels" {
-  type = map(string)
-  default = {
-    "run.googleapis.com/sandbox" = "gvisor"
-  }
+  type    = map(string)
+  default = null
 }
 
 variable "annotations" {
@@ -29,19 +63,9 @@ variable "annotations" {
   default = null
 }
 
-variable "min_scale" {
-  type    = number
-  default = 0
-}
-
-variable "max_scale" {
-  type    = number
-  default = 3
-}
-
 variable "image" {
   type    = string
-  default = "docker.io/oryd/oathkeeper:latest"
+  default = "oryd/oathkeeper"
 }
 
 variable "config" {
@@ -58,16 +82,6 @@ variable "config" {
   }
 }
 
-variable "resources" {
-  type = any
-  default = {
-    limits = {
-      cpu    = "500m",
-      memory = "512Mi"
-    },
-    requests = {
-      cpu    = "100m",
-      memory = "128Mi"
-    }
-  }
+variable "region" {
+  type = string
 }
