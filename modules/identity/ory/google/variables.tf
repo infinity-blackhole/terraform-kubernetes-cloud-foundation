@@ -12,6 +12,11 @@ variable "namespace" {
   default = "default"
 }
 
+variable "target" {
+  type    = string
+  default = null
+}
+
 variable "labels" {
   type = map(string)
   default = {
@@ -22,11 +27,6 @@ variable "labels" {
 variable "annotations" {
   type    = map(string)
   default = null
-}
-
-variable "replicas" {
-  type    = number
-  default = 1
 }
 
 variable "min_scale" {

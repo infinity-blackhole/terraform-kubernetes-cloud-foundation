@@ -8,6 +8,16 @@ variable "namespace" {
   default = "default"
 }
 
+variable "metric" {
+  type    = string
+  default = "concurrency"
+}
+
+variable "target" {
+  type    = string
+  default = null
+}
+
 variable "labels" {
   type = map(string)
   default = {

@@ -1,22 +1,34 @@
-resource "kubernetes_manifest" "oathkeeper_deployment" {
+resource "kubernetes_manifest" "oathkeeper_knative_service" {
+  for_each = {
+    proxy = {
+      containerPort = try(var.config.serve.proxy.port, 4455)
+    },
+    api = {
+      containerPort = try(var.config.serve.api.port, 4456)
+    }
+  }
   manifest = {
-    apiVersion = "apps/v1"
-    kind       = "Deployment"
+    apiVersion = "serving.knative.dev/v1"
+    kind       = "Service"
     metadata = {
       labels      = var.labels
       annotations = var.annotations
-      name        = var.name
+      name        = "${var.name}-${each.key}"
       namespace   = var.namespace
     }
     spec = {
-      replicas = var.replicas
-      selector = {
-        matchLabels = var.pod_labels
-      }
       template = {
         metadata = {
-          labels      = var.pod_labels
-          annotations = var.pod_annotations
+          labels = var.pod_labels
+          annotations = merge(
+            {
+              "autoscaling.knative.dev/metric"    = var.metric,
+              "autoscaling.knative.dev/target"    = var.target,
+              "autoscaling.knative.dev/max-scale" = var.min_scale,
+              "autoscaling.knative.dev/min-scale" = var.max_scale
+            },
+            var.pod_annotations
+          )
         }
         spec = {
           containers = [
@@ -31,12 +43,8 @@ resource "kubernetes_manifest" "oathkeeper_deployment" {
               resources = var.resources
               ports = [
                 {
-                  name          = "proxy"
-                  containerPort = try(var.config.serve.proxy.port, 4455)
-                },
-                {
-                  name          = "api"
-                  containerPort = try(var.config.serve.api.port, 4456)
+                  name          = each.key
+                  containerPort = each.value.containerPort
                 }
               ]
               volumeMounts = [
