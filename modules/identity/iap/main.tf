@@ -1,5 +1,5 @@
 module "oathkeeper_serverless_service" {
-  source = "../../../service/kubernetes"
+  source = "../../../service"
   for_each = {
     proxy = {
       port = try(var.config.serve.proxy.port, 4455)
