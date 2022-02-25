@@ -16,7 +16,7 @@ module "oathkeeper_serverless_service" {
   image       = var.image
   args = [
     "--config",
-    "/etc/ory/oathkeeper/config.yaml",
+    "/etc/ory/oathkeeper/config.json",
     "serve"
   ]
   cpu    = "500m"
@@ -37,7 +37,7 @@ module "oathkeeper_serverless_service" {
         items = [
           {
             key  = "1"
-            path = "config.yaml"
+            path = "config.json"
             mode = 256 # 0400
           }
         ]
@@ -60,5 +60,5 @@ resource "google_secret_manager_secret" "oathkeeper_config" {
 
 resource "google_secret_manager_secret_version" "oathkeeper_config_default" {
   secret      = google_secret_manager_secret.oathkeeper_config.id
-  secret_data = " "
+  secret_data = jsonencode(var.config)
 }

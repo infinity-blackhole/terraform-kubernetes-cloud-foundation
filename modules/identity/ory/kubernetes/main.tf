@@ -15,7 +15,7 @@ module "oathkeeper_serverless_service" {
   image       = var.image
   args = [
     "--config",
-    "/etc/ory/oathkeeper/config.yaml",
+    "/etc/ory/oathkeeper/config.json",
     "serve"
   ]
   cpu    = "500m"
@@ -50,8 +50,12 @@ resource "kubernetes_manifest" "oathkeeper_configmap" {
       namespace = var.namespace
     }
     immutable = true
-    data = {
-      "config.yaml" = yamlencode(var.config)
-    }
+    data = merge(
+      { "config.json" = jsonencode(var.config) },
+      {
+        for k, v in var.access_rules :
+        "${k}.json" => jsonencode(v)
+      }
+    )
   }
 }

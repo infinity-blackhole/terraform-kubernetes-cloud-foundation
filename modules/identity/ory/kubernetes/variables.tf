@@ -69,15 +69,11 @@ variable "image" {
 }
 
 variable "config" {
-  type = any
-  default = {
-    serve = {
-      proxy = {
-        port = 4456
-      },
-      api = {
-        port = 4455
-      }
-    }
-  }
+  type    = any
+  default = {}
+}
+
+variable "access_rules" {
+  type    = map(any)
+  default = {}
 }
