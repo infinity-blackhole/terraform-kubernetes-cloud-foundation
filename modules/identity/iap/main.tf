@@ -41,7 +41,7 @@ module "oathkeeper_serverless_service" {
 resource "kubernetes_manifest" "oathkeeper_configmap" {
   manifest = {
     apiVersion = "v1"
-    kind       = "ConfigMap"
+    kind       = "Secret"
     metadata = {
       labels = {
         app = var.name
@@ -51,10 +51,10 @@ resource "kubernetes_manifest" "oathkeeper_configmap" {
     }
     immutable = true
     data = merge(
-      { "config.json" = jsonencode(var.config) },
+      { "config.json" = base64encode(jsonencode(var.config)) },
       {
         for k, v in var.access_rules :
-        "${k}.json" => jsonencode(v)
+        "${k}.json" => base64encode(jsonencode(v))
       }
     )
   }
